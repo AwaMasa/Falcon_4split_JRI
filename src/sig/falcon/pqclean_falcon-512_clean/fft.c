@@ -683,7 +683,7 @@ PQCLEAN_FALCON512_CLEAN_poly_split_fft(
     on = qn >> 1;
 
     /*
-     * We process complex values by pairs. For logn = 1, there is only
+     * We process complex values by pairs. For logn = 2, there is only
      * one complex value (the other one is the implicit conjugate),
      * so we add the two lines below because the loop will be
      * skipped.
@@ -703,7 +703,15 @@ PQCLEAN_FALCON512_CLEAN_poly_split_fft(
         b_re = f[(u << 1) + 1];
         b_im = f[(u << 1) + 1 + hn];
 
+        c_re = f[(u << 1) + 2];
+        c_im = f[(u << 1) + 2 + hn];
+        d_re = f[(u << 1) + 3];
+        d_im = f[(u << 1) + 3 + hn];
+
         FPC_ADD(t_re, t_im, a_re, a_im, b_re, b_im);
+        FPC_ADD(t_re, t_im, t_re, t_im, c_re, c_im);
+        FPC_ADD(t_re, t_im, t_re, t_im, d_re, d_im);
+
         f0[u] = fpr_half(t_re);
         f0[u + qn] = fpr_half(t_im);
 

@@ -415,6 +415,20 @@ fpr_half(fpr x) {
 }
 
 static inline fpr
+fpr_quarter(fpr x) {
+    /*
+     * To divide a value by 4, we just have to subtract 2 from its
+     * exponent, but we have to take care of zero and one.
+     */
+    uint32_t t;
+
+    x -= (uint64_t)1 << 53;
+    t = (((uint32_t)(x >> 52) & 0x7FF) + 1) >> 11;
+    x &= (uint64_t)t - 1;
+    return x;
+}
+
+static inline fpr
 fpr_double(fpr x) {
     /*
      * To double a value, we just increment by one the exponent. We
