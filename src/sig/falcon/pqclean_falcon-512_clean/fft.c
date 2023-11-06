@@ -694,33 +694,65 @@ PQCLEAN_FALCON512_CLEAN_poly_split_fft(
     f3[0] = f[qn*3];
 
 
-    for (u = 0; u < qn; u ++) {
+    for (u = 0; u < on; u ++) {
         fpr a_re, a_im, b_re, b_im;
+        fpr c_re, c_im, d_re, d_im;
         fpr t_re, t_im;
 
-        a_re = f[(u << 1) + 0];
-        a_im = f[(u << 1) + 0 + hn];
-        b_re = f[(u << 1) + 1];
-        b_im = f[(u << 1) + 1 + hn];
+        a_re = f[(u << 2) + 0];
+        a_im = f[(u << 2) + 0 + hn];
+        b_re = f[(u << 2) + 1];
+        b_im = f[(u << 2) + 1 + hn];
+        c_re = f[(u << 2) + 2];
+        c_im = f[(u << 2) + 2 + hn];
+        d_re = f[(u << 2) + 3];
+        d_im = f[(u << 2) + 3 + hn];
 
-        c_re = f[(u << 1) + 2];
-        c_im = f[(u << 1) + 2 + hn];
-        d_re = f[(u << 1) + 3];
-        d_im = f[(u << 1) + 3 + hn];
-
+        
+        // f0
         FPC_ADD(t_re, t_im, a_re, a_im, b_re, b_im);
         FPC_ADD(t_re, t_im, t_re, t_im, c_re, c_im);
         FPC_ADD(t_re, t_im, t_re, t_im, d_re, d_im);
+        f0[u] = fpr_quarter(t_re);
+        f0[u + on] = fpr_quarter(t_im);
 
-        f0[u] = fpr_half(t_re);
-        f0[u + qn] = fpr_half(t_im);
-
-        FPC_SUB(t_re, t_im, a_re, a_im, b_re, b_im);
+        // f1
+        FPC_ADD(t_re, t_im, a_re, a_im, b_re, b_im);
+        FPC_SUB(t_re, t_im, t_re, t_im, c_re, c_im);
+        FPC_SUB(t_re, t_im, t_re, t_im, d_re, d_im);
+        // MULあとで zeta'
         FPC_MUL(t_re, t_im, t_re, t_im,
-                fpr_gm_tab[((u + hn) << 1) + 0],
-                fpr_neg(fpr_gm_tab[((u + hn) << 1) + 1]));
-        f1[u] = fpr_half(t_re);
-        f1[u + qn] = fpr_half(t_im);
+            fpr_gm_tab[((u + qn) << 1) + 0],
+            fpr_neg(fpr_gm_tab[((u + qn) << 1) + 1]));
+        f1[u] = fpr_quarter(t_re);
+        f1[u + on] = fpr_quarter(t_im);
+
+
+        // f2
+        FPC_SUB(t_re, t_im, a_re, a_im, b_re, b_im);
+        FPC_ADD(t_re, t_im, t_re, t_im, c_re, c_im);
+        FPC_SUB(t_re, t_im, t_re, t_im, d_re, d_im);
+        // MULあとで zeta'^2
+        FPC_MUL(t_re, t_im, t_re, t_im,
+            fpr_gm_tab[((u + hn) << 1) + 0],
+            fpr_neg(fpr_gm_tab[((u + hn) << 1) + 1]));
+
+        f2[u] = fpr_quarter(t_re);
+        f2[u + on] = fpr_quarter(t_im);
+
+        // f3
+        FPC_ADD(t_re, t_im, a_re, a_im, b_re, b_im);
+        FPC_SUB(t_re, t_im, t_re, t_im, c_re, c_im);
+        FPC_ADD(t_re, t_im, t_re, t_im, d_re, d_im);
+        // MULあとで zeta'^3
+        FPC_MUL(t_re, t_im, t_re, t_im,
+            fpr_gm_tab[((u + hn) << 1) + 0],
+            fpr_neg(fpr_gm_tab[((u + hn) << 1) + 1]));
+
+        f3[u] = fpr_quarter(t_re);
+        f3[u + on] = fpr_quarter(t_im);
+
+
     }
 }
 
