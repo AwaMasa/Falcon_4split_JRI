@@ -617,56 +617,56 @@ PQCLEAN_FALCON512_CLEAN_poly_LDLmv_fft(
 
 // Original
 /* see inner.h */
-// void
-// PQCLEAN_FALCON512_CLEAN_poly_split_fft(
-//     fpr *f0, fpr *f1,
-//     const fpr *f, unsigned logn) {
-//     /*
-//      * The FFT representation we use is in bit-reversed order
-//      * (element i contains f(w^(rev(i))), where rev() is the
-//      * bit-reversal function over the ring degree. This changes
-//      * indexes with regards to the Falcon specification.
-//      */
-//     size_t n, hn, qn, u;
+void
+PQCLEAN_FALCON512_CLEAN_poly_split_fft(
+    fpr *f0, fpr *f1,
+    const fpr *f, unsigned logn) {
+    /*
+     * The FFT representation we use is in bit-reversed order
+     * (element i contains f(w^(rev(i))), where rev() is the
+     * bit-reversal function over the ring degree. This changes
+     * indexes with regards to the Falcon specification.
+     */
+    size_t n, hn, qn, u;
 
-//     n = (size_t)1 << logn;
-//     hn = n >> 1;
-//     qn = hn >> 1;
+    n = (size_t)1 << logn;
+    hn = n >> 1;
+    qn = hn >> 1;
 
-//     /*
-//      * We process complex values by pairs. For logn = 1, there is only
-//      * one complex value (the other one is the implicit conjugate),
-//      * so we add the two lines below because the loop will be
-//      * skipped.
-//      */
-//     f0[0] = f[0];
-//     f1[0] = f[hn];
+    /*
+     * We process complex values by pairs. For logn = 1, there is only
+     * one complex value (the other one is the implicit conjugate),
+     * so we add the two lines below because the loop will be
+     * skipped.
+     */
+    f0[0] = f[0];
+    f1[0] = f[hn];
+ 
+    for (u = 0; u < qn; u ++) {
+        fpr a_re, a_im, b_re, b_im;
+        fpr t_re, t_im;
 
-//     for (u = 0; u < qn; u ++) {
-//         fpr a_re, a_im, b_re, b_im;
-//         fpr t_re, t_im;
+        a_re = f[(u << 1) + 0];
+        a_im = f[(u << 1) + 0 + hn];
+        b_re = f[(u << 1) + 1];
+        b_im = f[(u << 1) + 1 + hn];
 
-//         a_re = f[(u << 1) + 0];
-//         a_im = f[(u << 1) + 0 + hn];
-//         b_re = f[(u << 1) + 1];
-//         b_im = f[(u << 1) + 1 + hn];
+        FPC_ADD(t_re, t_im, a_re, a_im, b_re, b_im);
+        f0[u] = fpr_half(t_re);
+        f0[u + qn] = fpr_half(t_im);
 
-//         FPC_ADD(t_re, t_im, a_re, a_im, b_re, b_im);
-//         f0[u] = fpr_half(t_re);
-//         f0[u + qn] = fpr_half(t_im);
-
-//         FPC_SUB(t_re, t_im, a_re, a_im, b_re, b_im);
-//         FPC_MUL(t_re, t_im, t_re, t_im,
-//                 fpr_gm_tab[((u + hn) << 1) + 0],
-//                 fpr_neg(fpr_gm_tab[((u + hn) << 1) + 1]));
-//         f1[u] = fpr_half(t_re);
-//         f1[u + qn] = fpr_half(t_im);
-//     }
-// }
+        FPC_SUB(t_re, t_im, a_re, a_im, b_re, b_im);
+        FPC_MUL(t_re, t_im, t_re, t_im,
+                fpr_gm_tab[((u + hn) << 1) + 0],
+                fpr_neg(fpr_gm_tab[((u + hn) << 1) + 1]));
+        f1[u] = fpr_half(t_re);
+        f1[u + qn] = fpr_half(t_im);
+    }
+}
 
 // ２分割→４分割...
 void
-PQCLEAN_FALCON512_CLEAN_poly_split_fft(
+PQCLEAN_FALCON512_CLEAN_poly_split4_fft(
     fpr *f0, fpr *f1, fpr *f2, fpr *f3,
     const fpr *f, unsigned logn) {
     /*

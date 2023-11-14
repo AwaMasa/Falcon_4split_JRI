@@ -687,6 +687,9 @@ void PQCLEAN_FALCON512_CLEAN_poly_LDLmv_fft(fpr *d11, fpr *l10,
 void PQCLEAN_FALCON512_CLEAN_poly_split_fft(fpr *f0, fpr *f1,
         const fpr *f, unsigned logn);
 
+
+void PQCLEAN_FALCON512_CLEAN_poly_split4_fft(fpr *f0, fpr *f1, fpr *f2, fpr *f3,
+        const fpr *f, unsigned logn);
 /*
  * Apply "merge" operation on two polynomials in FFT representation:
  * given f0 and f1, polynomials moduo X^(N/2)+1, this function computes
